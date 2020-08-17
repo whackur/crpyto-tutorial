@@ -1,5 +1,5 @@
 # bip39 Valid Mnemonic Generator Python App
-'''
+"""
 Author: Steven Hatzakis @ 2018
 
 Version 1.8 beta
@@ -28,7 +28,7 @@ there slice at least 128 bits to obtain the desired starting amount of entorpy
 neeeded.
 
 
-'''
+"""
 
 
 import hashlib
@@ -49,7 +49,9 @@ def main():
 
 def ask_word_count():
     default_word_count = 12
-    input_string = 'Enter word count: (12 or 24, default: {0}): '.format(default_word_count)
+    input_string = "Enter word count: (12 or 24, default: {0}): ".format(
+        default_word_count
+    )
     while True:
         word_count_string = input(input_string)
         if len(word_count_string) == 0:
@@ -61,78 +63,128 @@ def ask_word_count():
 
 def ask_entropy(generated_bit_count):
     generated_char_count = generated_bit_count // 4
-    input_string = 'Enter entropy in the form of padded hex string of length {0} (leave empty to generate): '.format(generated_char_count)
+    input_string = "Enter entropy in the form of padded hex string of length {0} (leave empty to generate): ".format(
+        generated_char_count
+    )
     while True:
         entropy_string = input(input_string)
         entropy_len = len(entropy_string)
         if entropy_len == 0:
             return generate_entropy(generated_bit_count)
         if entropy_len == generated_char_count + 2:
-            entropy_binary = int_to_padded_binary(int(entropy_string, 16), generated_bit_count)
+            entropy_binary = int_to_padded_binary(
+                int(entropy_string, 16), generated_bit_count
+            )
             return entropy_binary
 
 
 def generate_entropy(generated_bit_count):
     generated_char_count = generated_bit_count // 4
     entropy = secrets.randbits(generated_bit_count)  # generate bits
-    entropy_binary = int_to_padded_binary(entropy, generated_bit_count)  # convert entropy to binary
-    print('Initial entropy:', entropy_binary)  # print the entire string of bits to be used
-    print('Length of initial entropy:', len(entropy_binary))  # print the length of the string
+    entropy_binary = int_to_padded_binary(
+        entropy, generated_bit_count
+    )  # convert entropy to binary
+    print(
+        "Initial entropy:", entropy_binary
+    )  # print the entire string of bits to be used
+    print(
+        "Length of initial entropy:", len(entropy_binary)
+    )  # print the length of the string
     entropy_hex = binary_to_padded_hex(entropy_binary, generated_char_count)
-    print('Initial entropy as hex:', entropy_hex)  # print initial string as hexidecimal base 16
-    print('Length of entropy as hex:', len(entropy_hex))  # print length of hex string
+    print(
+        "Initial entropy as hex:", entropy_hex
+    )  # print initial string as hexidecimal base 16
+    print("Length of entropy as hex:", len(entropy_hex))  # print length of hex string
     return entropy_binary
 
 
 def get_hash(entropy):
     generated_bit_count = len(entropy)
     generated_char_count = generated_bit_count // 4
-    print('gcc:', generated_char_count)
-    entropy_hex = binary_to_padded_hex(entropy, generated_char_count)  # assign hex string to entropy_hex variable
+    print("gcc:", generated_char_count)
+    entropy_hex = binary_to_padded_hex(
+        entropy, generated_char_count
+    )  # assign hex string to entropy_hex variable
 
     entropy_hex_no_padding = entropy_hex[2:]  # removing leading 0x hex pad
 
-    print('Entropy length as hex without 0x pad:', len(entropy_hex_no_padding))  # prints length without 0x pad
-    print('Initial entropy as hex without pad:', entropy_hex_no_padding)  # print string without 0x pad
+    print(
+        "Entropy length as hex without 0x pad:", len(entropy_hex_no_padding)
+    )  # prints length without 0x pad
+    print(
+        "Initial entropy as hex without pad:", entropy_hex_no_padding
+    )  # print string without 0x pad
 
-    entropy_bytearray = bytearray.fromhex(entropy_hex_no_padding)  # *convert no padded hex string to bytearray
-    print(entropy_bytearray, '<--- Entropy as bytes')  # print array as bytes in bytearray()
-    print('Length of initial entropy as bytearray:', len(entropy_bytearray))  # print length of bytearray
+    entropy_bytearray = bytearray.fromhex(
+        entropy_hex_no_padding
+    )  # *convert no padded hex string to bytearray
+    print(
+        entropy_bytearray, "<--- Entropy as bytes"
+    )  # print array as bytes in bytearray()
+    print(
+        "Length of initial entropy as bytearray:", len(entropy_bytearray)
+    )  # print length of bytearray
 
-    bits = hashlib.sha256(entropy_bytearray).hexdigest()  # *compute the sha256 hash of the bytearray as a hex digest
-    print(bits, '<--- SHA-256 hash digest of entropy bytes')  # print the hash digest of the bytearray
+    bits = hashlib.sha256(
+        entropy_bytearray
+    ).hexdigest()  # *compute the sha256 hash of the bytearray as a hex digest
+    print(
+        bits, "<--- SHA-256 hash digest of entropy bytes"
+    )  # print the hash digest of the bytearray
     return bits
 
 
 def pick_words(entropy, entropy_hash, checksum_bit_count):
     generated_bit_count = len(entropy)
     generated_char_count = generated_bit_count // 4
-    entropy_hex = binary_to_padded_hex(entropy, generated_char_count)  # assign hex string to entropy_hex variable
+    entropy_hex = binary_to_padded_hex(
+        entropy, generated_char_count
+    )  # assign hex string to entropy_hex variable
     checksum_char_count = checksum_bit_count // 4
-    bit = entropy_hash[0:checksum_char_count]  # *take first x bit of bits (x is not defined but be added to slice manually)
+    bit = entropy_hash[
+        0:checksum_char_count
+    ]  # *take first x bit of bits (x is not defined but be added to slice manually)
 
-    print(bit, '<--- Partial fragment of initial "byte" of hash')  # print first part of hash used for bits
-    print((bit[0:checksum_char_count]), '<--- First n bits of hash to convert to hex')  # print needed bits from
+    print(
+        bit, '<--- Partial fragment of initial "byte" of hash'
+    )  # print first part of hash used for bits
+    print(
+        (bit[0:checksum_char_count]), "<--- First n bits of hash to convert to hex"
+    )  # print needed bits from
 
     check_bit = int(bit, 16)  # converts hex to binary
     checksum = int_to_padded_binary(check_bit, checksum_bit_count)
-    print(checksum, '<--- Checksum (hex to bits)')  # ensures length is checksum_bit_count so zero pad isn't dropped on small numbers
+    print(
+        checksum, "<--- Checksum (hex to bits)"
+    )  # ensures length is checksum_bit_count so zero pad isn't dropped on small numbers
 
-    print('Initial entropy + checksum = total bits:', str(entropy) + str(checksum))  # convert entropy to binary string
-    print('Length of total bits:', len(str(entropy) + str(checksum)))  # print length of total bits
-    source = str(entropy) + str(checksum)  # adds checksum to end of string lengthening it deterministically.
-    groups = [source[i:i + 11] for i in range(0, len(source), 11)]  # splits the total bits into groups of 11 bits at a time
-    print(groups)  # final groups each representing a index value that corresponds to a word in the list.
+    print(
+        "Initial entropy + checksum = total bits:", str(entropy) + str(checksum)
+    )  # convert entropy to binary string
+    print(
+        "Length of total bits:", len(str(entropy) + str(checksum))
+    )  # print length of total bits
+    source = str(entropy) + str(
+        checksum
+    )  # adds checksum to end of string lengthening it deterministically.
+    groups = [
+        source[i : i + 11] for i in range(0, len(source), 11)
+    ]  # splits the total bits into groups of 11 bits at a time
+    print(
+        groups
+    )  # final groups each representing a index value that corresponds to a word in the list.
 
-    print('Optional backup hex:', entropy_hex)
+    print("Optional backup hex:", entropy_hex)
 
-    totalbits = hex(int(str('0b') + entropy + str(checksum), 2))
+    totalbits = hex(int(str("0b") + entropy + str(checksum), 2))
 
-    print('Optional backup hex with checksum:', totalbits)
-    print('Hash digest of initial entropy bytes:', entropy_hash)
+    print("Optional backup hex with checksum:", totalbits)
+    print("Hash digest of initial entropy bytes:", entropy_hash)
 
     # lookup = [source[i:i + 11] for i in range(0,len(source),11)]
-    indices = [int(str('0b') + source[i:i + 11], 2) for i in range(0, len(source), 11)]  # (str('0b') for i in range(0,len(source),11))
+    indices = [
+        int(str("0b") + source[i : i + 11], 2) for i in range(0, len(source), 11)
+    ]  # (str('0b') for i in range(0,len(source),11))
     # print(int(groups[:11],base=2))
     print(indices)
     # print(bip39wordlist([indices]))
@@ -144,7 +196,7 @@ def print_words(indices):
     # print(len(bip39wordlist))
     # wordindexes=for i in indices
     words = [bip39wordlist[indices[i]] for i in range(0, len(indices))]
-    word_string = ' '.join(words)
+    word_string = " ".join(words)
     print(word_string)
 
 
@@ -154,7 +206,7 @@ def int_to_padded_binary(num, padding):
 
 def binary_to_padded_hex(bin, padding):
     num = int(bin, 2)
-    return '0x{0:0{1}x}'.format(num, padding)
+    return "0x{0:0{1}x}".format(num, padding)
 
 
 bip39wordlist = [
@@ -2205,7 +2257,7 @@ bip39wordlist = [
     "zebra",
     "zero",
     "zone",
-    "zoo"
+    "zoo",
 ]
 
 main()

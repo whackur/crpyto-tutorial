@@ -1,1 +1,1 @@
-infura = {"project_id" : "abcd"}
+infura = {"project_id": "abcd"}
